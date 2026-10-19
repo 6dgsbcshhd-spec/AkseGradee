@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AkseGrader | Рулетка</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap');
+:root{--bg-color:#121212;--card-bg:#1e1e1e;--gold:#ffd700;--green:#4CAF50;--red:#f44336;--text:#fff}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Montserrat',sans-serif;user-select:none}
+body{background-color:var(--bg-color);color:var(--text);overflow-x:hidden;background-image:radial-gradient(circle at top right,#2a2a2a,#121212);min-height:100vh}
+header{display:flex;justify-content:space-between;align-items:center;padding:15px 30px;background:rgba(30,30,30,.8);backdrop-filter:blur(10px);border-bottom:1px solid #333;position:sticky;top:0;z-index:100}
+.logo{font-size:24px;font-weight:800;color:var(--gold);text-shadow:0 0 10px rgba(255,215,0,.5);letter-spacing:1px}
+.user-info{display:flex;gap:20px;align-items:center;background:#2a2a2a;padding:8px 15px;border-radius:10px;border:1px solid #444}
+.user-id{font-size:14px;color:#aaa}.user-balance{font-weight:800;color:var(--gold)}
+.tg-btn{background:#0088cc;color:#fff;text-decoration:none;padding:10px 20px;border-radius:8px;font-weight:600;transition:.3s;box-shadow:0 4px 15px rgba(0,136,204,.4)}
+.tg-btn:hover{transform:translateY(-2px);background:#00a0f0}
+.upgrade-container{display:flex;justify-content:center;align-items:center;gap:50px;padding:50px 20px;max-width:1200px;margin:0 auto;flex-wrap:wrap}
+.slot{background:var(--card-bg);border-radius:20px;padding:20px;width:300px;min-height:350px;border:1px solid #333;display:flex;flex-direction:column;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.slot-title{font-size:14px;color:#aaa;margin-bottom:20px;text-transform:uppercase;letter-spacing:1px;text-align:center}
+.item-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:100%;max-height:250px;overflow-y:auto;padding-right:5px}
+.item-grid::-webkit-scrollbar{width:5px}.item-grid::-webkit-scrollbar-thumb{background:#444;border-radius:5px}
+.item-card{background:#2a2a2a;border-radius:12px;padding:10px;display:flex;flex-direction:column;align-items:center;cursor:pointer;transition:.2s;border:2px solid transparent}
+.item-card:hover{transform:scale(1.05);background:#333}
+.item-card.selected{border-color:var(--green);background:rgba(76,175,80,.1)}
+.item-img{width:60px;height:60px;object-fit:contain;margin-bottom:5px;filter:drop-shadow(0 5px 10px rgba(0,0,0,.5))}
+.item-price{background:#111;color:var(--gold);font-size:12px;padding:2px 8px;border-radius:10px;font-weight:600}
+.upgrade-circle-container{display:flex;flex-direction:column;align-items:center;gap:20px}
+.upgrade-circle{width:200px;height:200px;border-radius:50%;background:conic-gradient(#333 0%,#333 100%);display:flex;justify-content:center;align-items:center;position:relative;box-shadow:0 0 30px rgba(255,215,0,.1);transition:.3s}
+.upgrade-circle::before{content:'';position:absolute;width:170px;height:170px;background:var(--bg-color);border-radius:50%;z-index:1}
+.chance-text{position:relative;z-index:2;text-align:center}
+.chance-text h2{font-size:32px;color:var(--gold)}.chance-text p{font-size:12px;color:#aaa}
+.upgrade-btn{background:linear-gradient(135deg,var(--green),#2E7D32);color:#fff;border:none;padding:15px 40px;border-radius:10px;font-size:18px;font-weight:800;cursor:pointer;transition:.3s;box-shadow:0 5px 20px rgba(76,175,80,.4);width:100%}
+.upgrade-btn:hover{transform:translateY(-2px)}
+.upgrade-btn:disabled{background:#333;color:#666;cursor:not-allowed;box-shadow:none;transform:none}
+.note{font-size:12px;color:#aaa;text-align:center}.warn{color:#ff9800;text-align:center;padding:10px;font-size:14px}
+.admin-panel{display:none;padding:30px;max-width:800px;margin:0 auto}
+.admin-panel h2{color:var(--gold);margin-bottom:20px;text-align:center}
+.admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.admin-card{background:var(--card-bg);padding:20px;border-radius:15px;border:1px solid #333}
+.admin-card h3{margin-bottom:15px;font-size:16px;color:#ddd}
+.admin-card input,.admin-card select,.admin-card textarea{width:100%;padding:12px;margin:6px 0;background:#111;border:1px solid #333;color:#fff;border-radius:8px;font-size:14px;user-select:text}
+.admin-card button,.admin-card a.lnk{display:block;text-align:center;text-decoration:none;width:100%;padding:12px;border:none;border-radius:8px;font-weight:800;cursor:pointer;margin-top:8px;color:#fff;background:#333}
+.promo{display:flex;gap:6px;width:100%}.promo input{flex:1;min-width:0;padding:10px;background:#111;border:1px solid #333;color:#fff;border-radius:8px;user-select:text}.promo button{padding:10px 14px;border:0;border-radius:8px;background:var(--gold);font-weight:800;cursor:pointer}
+.ov{display:none;position:fixed;inset:0;background:#111;z-index:9999;justify-content:center;align-items:center;text-align:center;flex-direction:column;padding:20px}
+.ov h1{color:var(--red);font-size:40px;margin-bottom:20px}.ov p{color:#aaa;font-size:20px}
+@media(max-width:768px){.upgrade-container{flex-direction:column;gap:20px}.slot{width:100%;max-width:350px}.admin-grid{grid-template-columns:1fr}header{flex-direction:column;gap:10px;padding:10px}.ov h1{font-size:28px}}
+</style>
+</head>
+<body>
+<div class="ov" id="site-closed-overlay"><h1>Сайт временно закрыт</h1><p id="closed-reason"></p></div>
+<div class="ov" id="ban-overlay"><h1>Вы заблокированы на этом сайте</h1><p id="ban-reason"></p></div>
+
+<header>
+  <div class="logo">AkseGrader</div>
+  <div class="user-info"><div class="user-id">ID: <span id="my-id">...</span></div><div class="user-balance">Инвентарь: <span id="my-inv-count">0</span></div></div>
+  <a href="https://t.me/akselovvv" target="_blank" rel="noopener" class="tg-btn">Пополнить подарки</a>
+  <button onclick="showAdminLogin()" style="background:none;border:none;color:#555;cursor:pointer;font-size:20px;">⚙️</button>
+</header>
+
+<div class="upgrade-container" id="main-app">
+  <div class="slot"><div class="slot-title">Выберите свои предметы</div><div class="item-grid" id="my-items-grid"></div></div>
+  <div class="upgrade-circle-container">
+    <div class="upgrade-circle" id="chance-circle"><div class="chance-text"><h2 id="chance-val">0%</h2><p>Шанс апгрейда</p></div></div>
+    <button class="upgrade-btn" id="btn-upgrade" onclick="doUpgrade()" disabled>Апгрейд</button>
+    <div class="note">Шанс = сумма ценности ваших подарков ÷ ценность приза</div>
+    <div class="warn" id="mute-note"></div>
+    <div class="note" id="bonus-note" style="color:var(--gold)"></div>
+    <div class="promo"><input id="promo-in" placeholder="Промокод" maxlength="32" autocapitalize="characters" autocomplete="off"><button onclick="redeemPromo()">Активировать</button></div>
+  </div>
+  <div class="slot"><div class="slot-title">Выберите предмет для апгрейда</div><div class="item-grid" id="target-items-grid"></div></div>
+</div>
+
+<div class="admin-panel" id="admin-panel">
+  <h2>Админ-Панель AkseGrader</h2>
+  <div class="admin-grid">
+    <div class="admin-card"><h3>Выдать подарок</h3>
+      <input type="text" id="admin-user-id" placeholder="ID пользователя" inputmode="numeric">
+      <select id="admin-gift-select"></select>
+      <button onclick="adminGiveGift()" style="background:var(--green)">Выдать</button></div>
+    <div class="admin-card"><h3>Модерация</h3>
+      <input type="text" id="admin-mod-id" placeholder="ID пользователя" inputmode="numeric">
+      <input type="text" id="ban-reason-in" placeholder="Причина блокировки (необязательно)">
+      <input type="number" id="admin-mute-min" placeholder="Минут мута" min="1">
+      <button onclick="adminBanUser(true)" style="background:var(--red)">Заблокировать</button>
+      <button onclick="adminBanUser(false)">Разблокировать</button>
+      <button onclick="adminMuteUser(true)" style="background:#ff9800">Выдать мут</button>
+      <button onclick="adminMuteUser(false)">Снять мут</button></div>
+    <div class="admin-card"><h3>Управление сайтом</h3>
+      <textarea id="close-reason" placeholder="Причина закрытия..."></textarea>
+      <button onclick="adminCloseSite()" style="background:var(--red)">Закрыть сайт</button>
+      <button onclick="adminOpenSite()" style="background:var(--green)">Открыть сайт</button></div>
+    <div class="admin-card"><h3>Промокоды</h3>
+      <input type="text" id="pc-code" placeholder="Код (английские буквы и цифры)" maxlength="32" autocomplete="off">
+      <select id="pc-kind" onchange="pcKind()"><option value="chance">Добавить шанс апгрейда</option><option value="gift">Случайный подарок</option></select>
+      <input type="number" id="pc-n" placeholder="+ к шансу, % (1–98)" min="0">
+      <input type="number" id="pc-uses" placeholder="Сколько человек могут активировать" value="1" min="1">
+      <button onclick="adminCreatePromo()" style="background:var(--green)">Создать промокод</button>
+      <div id="pc-list"></div></div>
+    <div class="admin-card"><h3>Пользователи</h3><p class="note" style="text-align:left">Список всех ID и их подарков:</p><a class="lnk" href="/admin" target="_blank" style="background:#0088cc">Открыть список</a></div>
+  </div>
+  <button onclick="logoutAdmin()" style="background:#444;color:#fff;width:100%;margin-top:20px;padding:10px;border:none;border-radius:8px;cursor:pointer">Выйти</button>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+let ITEMS=[],S={id:'',inv:{},site:{open:true}},tok=localStorage.getItem('akse_token'),sid=sessionStorage.getItem('akse_sid');
+let isAdmin=false,myInventory=[],selectedItems=[],selectedTarget=null,busy=false,pend=null,lastInv='';
+const item=id=>ITEMS.find(i=>i.id===id);
+const api=async(p,b)=>{const r=await fetch(p,{method:b?'POST':'GET',headers:{'x-token':tok||''},body:b?JSON.stringify(b):undefined});return{ok:r.ok,d:await r.json().catch(()=>({}))}};
+
+async function initApp(){
+  const g=await(await fetch('/api/gifts')).json();
+  ITEMS=Object.entries(g).map(([id,[name,value]])=>({id,name,value}));
+  $('admin-gift-select').innerHTML=ITEMS.map(i=>`<option value="${i.id}">${i.name} (${i.value})</option>`).join('');
+  let r=tok?await api('/api/me'):null;
+  if(!r||!r.ok){const d=await(await fetch('/api/register',{method:'POST'})).json();tok=d.token;localStorage.setItem('akse_token',tok);r=await api('/api/me')}
+  apply(r.d);
+  new EventSource('/api/stream?t='+tok).onmessage=e=>{const s=JSON.parse(e.data);busy?pend=s:apply(s)};
+}
+function apply(s){
+  S=s;const j=JSON.stringify(s.inv);if(j!==lastInv){selectedItems=[];lastInv=j}
+  myInventory=ITEMS.flatMap(i=>Array(s.inv[i.id]||0).fill(i.id));
+  checkSiteStatus();renderUI();
+}
+function checkSiteStatus(){
+  $('site-closed-overlay').style.display=(!S.site.open&&!isAdmin)?'flex':'none';
+  $('closed-reason').innerText='Причина: '+(S.site.reason||'Технические работы');
+  $('ban-overlay').style.display=(S.banned&&!isAdmin)?'flex':'none';
+  $('ban-reason').innerText=S.ban_reason||'';
+}
+const card=(it,sel,fn)=>{const c=document.createElement('div');c.className='item-card'+(sel?' selected':'');c.onclick=fn;
+  c.innerHTML=`<img src="/g/${it.id}.png" class="item-img" alt="${it.name}"><div class="item-price">⭐ ${it.value}</div>`;return c};
+function renderUI(){
+  $('my-id').innerText=S.id;$('my-inv-count').innerText=myInventory.length;
+  const g=$('my-items-grid');g.innerHTML='';
+  if(!myInventory.length)g.innerHTML='<div style="grid-column:span 2;text-align:center;color:#666;font-size:12px;margin-top:50px">Пусто.<br>Жми «Пополнить подарки»!</div>';
+  myInventory.forEach((id,i)=>g.appendChild(card(item(id),selectedItems.includes(i),()=>toggleSelectItem(i))));
+  const t=$('target-items-grid');t.innerHTML='';
+  ITEMS.forEach(it=>t.appendChild(card(it,selectedTarget===it.id,()=>selectTargetItem(it.id))));
+  updateChance();
+}
+function toggleSelectItem(i){if(busy)return;selectedItems=selectedItems.includes(i)?selectedItems.filter(x=>x!==i):[...selectedItems,i];renderUI()}
+function selectTargetItem(id){if(busy)return;selectedTarget=id;renderUI()}
+function updateChance(){
+  const btn=$('btn-upgrade'),muted=S.mute_until>Date.now();
+  $('mute-note').innerText=muted?'Вы в муте до '+new Date(S.mute_until).toLocaleString('ru')+' — апгрейд недоступен':'';
+  const bonus=S.bonus||0;$('bonus-note').innerText=bonus?'Бонус промокода: +'+bonus+'% к следующему апгрейду':'';
+  if(!selectedItems.length||!selectedTarget){$('chance-val').innerText='0%';$('chance-circle').style.background='conic-gradient(#333 0%,#333 100%)';btn.disabled=true;return}
+  const total=selectedItems.reduce((s,i)=>s+item(myInventory[i]).value,0);
+  const chance=Math.min(99,Math.max(1,Math.floor(total/item(selectedTarget).value*100))+bonus);
+  $('chance-val').innerText=chance+'%';
+  $('chance-circle').style.background=`conic-gradient(var(--gold) ${chance}%,#333 ${chance}%)`;
+  btn.disabled=muted||busy;
+}
+async function doUpgrade(){
+  if(busy||!selectedItems.length||!selectedTarget)return;
+  busy=true;const btn=$('btn-upgrade');btn.disabled=true;btn.innerText='Крутим...';
+  const t=item(selectedTarget),r=await api('/api/spin',{stakes:selectedItems.map(i=>myInventory[i]),target:t.id});
+  await new Promise(s=>setTimeout(s,1500));
+  busy=false;btn.innerText='Апгрейд';selectedItems=[];selectedTarget=null;
+  if(pend){apply(pend);pend=null}else renderUI();
+  alert(!r.ok?'❌ '+(r.d.error||'Ошибка'):r.d.win?`🎉 УСПЕХ! Вы выиграли ${t.name}!`:'😢 Неудача. Предметы сгорели.');
+}
+
+async function showAdminLogin(){
+  if(!sid){
+    const code=prompt('Введите секретный код администратора:');if(!code)return;
+    const r=await fetch('/api/admin/login',{method:'POST',body:JSON.stringify({code})}),d=await r.json().catch(()=>({}));
+    if(!r.ok)return alert('❌ '+(d.error||'Неверный код!'));
+    sid=d.sid;sessionStorage.setItem('akse_sid',sid);
+  }
+  isAdmin=true;$('admin-panel').style.display='block';$('main-app').style.display='none';checkSiteStatus();loadPromos();
+}
+function logoutAdmin(){isAdmin=false;sid=null;sessionStorage.removeItem('akse_sid');$('admin-panel').style.display='none';$('main-app').style.display='flex';checkSiteStatus()}
+async function adm(a,b,ok){
+  const r=await fetch('/api/admin/'+a,{method:'POST',headers:{'x-sid':sid||''},body:JSON.stringify(b)}),d=await r.json().catch(()=>({}));
+  if(r.status===401){logoutAdmin();return alert('Сессия истекла, войдите заново')}
+  if(!r.ok)alert('❌ '+(d.error||'Ошибка'));else if(ok)alert('✅ '+ok);return r.ok;
+}
+const adminGiveGift=()=>adm('give',{id:$('admin-user-id').value.trim(),gift:$('admin-gift-select').value,n:1},'Подарок выдан!');
+const adminBanUser=on=>adm('ban',{id:$('admin-mod-id').value.trim(),on,reason:$('ban-reason-in').value},on?'Заблокирован!':'Разблокирован!');
+const adminMuteUser=on=>on&&!(+$('admin-mute-min').value>0)?alert('Укажите минуты мута'):adm('mute',{id:$('admin-mod-id').value.trim(),minutes:on?+$('admin-mute-min').value:0},on?'Мут выдан!':'Мут снят!');
+const adminCloseSite=()=>adm('site',{open:false,reason:$('close-reason').value||'Технические работы'},'Сайт закрыт!');
+const adminOpenSite=()=>adm('site',{open:true,reason:''},'Сайт открыт!');
+async function redeemPromo(){
+  const code=$('promo-in').value.trim();if(!code)return;
+  const r=await api('/api/promo',{code});
+  if(!r.ok)return alert('❌ '+(r.d.error||'Ошибка'));
+  $('promo-in').value='';
+  alert(r.d.kind==='gift'?`🎁 Вы получили подарок: ${r.d.name}!`:`✅ +${r.d.bonus}% к шансу следующего апгрейда`);
+}
+const pcKind=()=>{$('pc-n').placeholder=$('pc-kind').value==='gift'?'Макс. ценность подарка ★ (пусто — любой)':'+ к шансу, % (1–98)'};
+async function adminCreatePromo(){
+  if(await adm('promo',{code:$('pc-code').value,kind:$('pc-kind').value,bonus:$('pc-n').value,uses:$('pc-uses').value},'Промокод создан!')){$('pc-code').value='';loadPromos()}
+}
+async function loadPromos(){
+  const r=await fetch('/api/admin/promos',{method:'POST',headers:{'x-sid':sid||''},body:'{}'});if(!r.ok)return;
+  const box=$('pc-list');box.innerHTML='';
+  (await r.json()).forEach(p=>{
+    const d=document.createElement('div');d.style.cssText='display:flex;justify-content:space-between;gap:8px;margin-top:8px;font-size:13px;align-items:center';
+    const t=document.createElement('span');t.style.userSelect='text';t.textContent=`${p.code} · ${p.kind==='gift'?'подарок'+(p.bonus?' до ★'+p.bonus:''):'+'+p.bonus+'% шанс'} · осталось ${p.uses_left}`;
+    const b=document.createElement('button');b.textContent='✕';b.style.cssText='width:36px;margin:0;padding:6px;background:#a33';
+    b.onclick=async()=>{await adm('promodel',{code:p.code},'');loadPromos()};
+    d.append(t,b);box.appendChild(d);
+  });
+}
+initApp();
+</script>
+</body>
+</html>
