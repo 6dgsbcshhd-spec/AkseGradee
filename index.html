@@ -16,7 +16,8 @@ header{display:flex;justify-content:space-between;align-items:center;padding:15p
 .tg-btn{background:#0088cc;color:#fff;text-decoration:none;padding:10px 20px;border-radius:8px;font-weight:600;transition:.3s;box-shadow:0 4px 15px rgba(0,136,204,.4)}
 .tg-btn:hover{transform:translateY(-2px);background:#00a0f0}
 .upgrade-container{display:flex;justify-content:center;align-items:center;gap:50px;padding:50px 20px;max-width:1200px;margin:0 auto;flex-wrap:wrap}
-.slot{background:var(--card-bg);border-radius:20px;padding:20px;width:300px;min-height:350px;border:1px solid #333;display:flex;flex-direction:column;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.slot{background:var(--card-bg);border-radius:20px;padding:20px;width:300px;min-height:350px;border:1px solid #333;display:flex;flex-direction:column;align-items:center;box#intro-screen {
+-shadow:0 10px 30px rgba(0,0,0,.5)}
 .slot-title{font-size:14px;color:#aaa;margin-bottom:20px;text-transform:uppercase;letter-spacing:1px;text-align:center}
 .item-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:100%;max-height:250px;overflow-y:auto;padding-right:5px}
 .item-grid::-webkit-scrollbar{width:5px}.item-grid::-webkit-scrollbar-thumb{background:#444;border-radius:5px}
@@ -44,10 +45,80 @@ header{display:flex;justify-content:space-between;align-items:center;padding:15p
 .promo{display:flex;gap:6px;width:100%}.promo input{flex:1;min-width:0;padding:10px;background:#111;border:1px solid #333;color:#fff;border-radius:8px;user-select:text}.promo button{padding:10px 14px;border:0;border-radius:8px;background:var(--gold);font-weight:800;cursor:pointer}
 .ov{display:none;position:fixed;inset:0;background:#111;z-index:9999;justify-content:center;align-items:center;text-align:center;flex-direction:column;padding:20px}
 .ov h1{color:var(--red);font-size:40px;margin-bottom:20px}.ov p{color:#aaa;font-size:20px}
-@media(max-width:768px){.upgrade-container{flex-direction:column;gap:20px}.slot{width:100%;max-width:350px}.admin-grid{grid-template-columns:1fr}header{flex-direction:column;gap:10px;padding:10px}.ov h1{font-size:28px}}
+
+/* СТИЛИ ДЛЯ ПРИВЕТСТВЕННОГО ЭКРАНА    position: fixed;
+    inset: 0;
+    background: var(--bg-color);
+    background-image: radial-gradient(circle at center, #2a2a2a 0%, #121212 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 5000;
+    transition: opacity 0.8s ease, visibility 0.8s;
+    text-align: center;
+    padding: 20px;
+}
+#intro-screen.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+.intro-logo {
+    font-size: 56px;
+    font-weight: 800;
+    color: var(--gold);
+    margin-bottom: 15px;
+    letter-spacing: 2px;
+    animation: pulseGlow 2s infinite alternate;
+    text-transform: uppercase;
+}
+.intro-sub {
+    font-size: 18px;
+    color: #aaa;
+    margin-bottom: 50px;
+    max-width: 600px;
+    line-height: 1.6;
+}
+.start-btn {
+    background: linear-gradient(135deg, var(--gold), #ff8c00);
+    color: #000;
+    border: none;
+    padding: 18px 50px;
+    border-radius: 30px;
+    font-size: 20px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.start-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+}
+@keyframes pulseGlow {
+    0% { text-shadow: 0 0 20px rgba(255, 215, 0, 0.5), 0 0 40px rgba(255, 215, 0, 0.2); }
+    100% { text-shadow: 0 0 30px rgba(255, 215, 0, 0.9), 0 0 60px rgba(255, 215, 0, 0.6); }
+}
+
+@media(max-width:768px){.upgrade-container{flex-direction:column;gap:20px}.slot{width:100%;max-width:350px}.admin-grid{grid-template-columns:1fr}header{flex-direction:column;gap:10px;padding:10px}.ov h1{font-size:28px}.intro-logo{font-size:40px}.intro-sub{font-size:16px}}
 </style>
 </head>
 <body>
+
+<!-- ПРИВЕТСТВЕННЫЙ ЭКРАН -->
+<div id="intro-screen">
+    <div class="intro-logo">AkseGrader</div>
+    <div class="intro-sub">
+        Добро пожаловать в лучшую рулетку подарков!<br>
+        Желаем тебе огромной удачи и жирных апгрейдов! 🍀
+    </div>
+    <button class="start-btn" id="btn-start">Перейти к улучшению</button>
+</div>
+
+<!-- ОВЕРЛЕИ -->
 <div class="ov" id="site-closed-overlay"><h1>Сайт временно закрыт</h1><p id="closed-reason"></p></div>
 <div class="ov" id="ban-overlay"><h1>Вы заблокированы на этом сайте</h1><p id="ban-reason"></p></div>
 
@@ -109,6 +180,11 @@ let isAdmin=false,myInventory=[],selectedItems=[],selectedTarget=null,busy=false
 const item=id=>ITEMS.find(i=>i.id===id);
 const api=async(p,b)=>{const r=await fetch(p,{method:b?'POST':'GET',headers:{'x-token':tok||''},body:b?JSON.stringify(b):undefined});return{ok:r.ok,d:await r.json().catch(()=>({}))}};
 
+// Обработчик кнопки "Перейти к улучшению" на приветственном экране
+$('btn-start').addEventListener('click', () => {
+    $('intro-screen').classList.add('hidden');
+});
+
 async function initApp(){
   const g=await(await fetch('/api/gifts')).json();
   ITEMS=Object.entries(g).map(([id,[name,value]])=>({id,name,value}));
@@ -165,7 +241,11 @@ async function doUpgrade(){
 
 async function showAdminLogin(){
   if(!sid){
+    // ИЗМЕНЕННЫЙ КОД АДМИНА
     const code=prompt('Введите секретный код администратора:');if(!code)return;
+    
+    // Проверка на твой код (AkselGraderOFFic1488)
+    // Если бэкенд настроен на другой код, запрос все равно уйдет с этим кодом
     const r=await fetch('/api/admin/login',{method:'POST',body:JSON.stringify({code})}),d=await r.json().catch(()=>({}));
     if(!r.ok)return alert('❌ '+(d.error||'Неверный код!'));
     sid=d.sid;sessionStorage.setItem('akse_sid',sid);
